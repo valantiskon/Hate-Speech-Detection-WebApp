@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <!--From https://codepen.io/frytyler/pen/EGdtg-->
+  <head>
+    <meta charset="UTF-8">
+    <title>ML API</title>
+    <link href='https://fonts.googleapis.com/css?family=Pacifico' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Arimo' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Hind:300' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans+Condensed:300' rel='stylesheet' type='text/css'>
+    <meta name="description" content="This page is about showcasing work created for a MSc project">
+    <link rel="icon" type="image/ico" href="static/favicon1.ico"/>     <!-- Addition of favicon -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    
+  </head>
+
+  <body>
+    <div class="main_area">
+      <h1>Hate Speech Detection</h1>
+      
+      <!-- Main Input For Receiving Query to our ML -->
+      <form action="{{ url_for('predict')}}" method="post">
+        <input type="text" name="hate_speech_text_field" placeholder="Text" required="required" />
+
+        <button type="submit" class="btn btn-primary btn-block btn-large">Predict</button>
+      </form>
+
+      <br>
+      <br>
+
+      <h3>{{ hate_speech_text }}</h3>
+      <div class="prediction_text">
+        {{ pre_predict_text }} <strong> {{ prediction_text }} </strong>
+      </div>
+
+
+
+
+      <div class="prediction_text">
+        {{ tesst }}
+      </div>
+      {{ test2 }}
+      <!-- {{ test2|safe }} -->
+      {{ test134 }}
+
+
+
+      <div class="polaroid">
+        <img class="test" src={{url_for('static', filename='apps.png')}} alt="wordcloud">
+        <div class="container">
+          <p><font color="black">wordcloud</font></p>
+        </div>
+      </div>
+      
+      <div class="polaroid">
+        <img class="test" src={{url_for('static', filename='apps.png')}} alt="wordcloud">
+        <div class="container">
+          <p><font color="black">wordcloud</font></p>
+        </div>
+      </div>
+      
+    </div>
+
+    
+
+
+  </body>
+</html>
