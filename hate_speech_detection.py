@@ -1,23 +1,26 @@
-import re
-import nltk
+import os
+from string import Template
+import pickle
+from collections import Counter
+import matplotlib.pyplot as plt
+from wordcloud import WordCloud, ImageColorGenerator
 from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics import balanced_accuracy_score
 import clean_data.preprocessing
 from sklearn import pipeline, model_selection, metrics, svm
 from pandas import read_csv, set_option
 import numpy as np
 from sklearn.utils import class_weight
-import string
-from nltk.stem.porter import PorterStemmer
-from nltk.tokenize import word_tokenize
-from sklearn.decomposition import TruncatedSVD, PCA
+from sklearn.decomposition import TruncatedSVD
 from sklearn.preprocessing import scale, MinMaxScaler
 from sklearn.ensemble import RandomForestClassifier
-import pickle
 from xgboost import XGBClassifier
 #import dill as pickle # used to pickle lambda functions
+
 from pytagcloud import create_tag_image, create_html_data, make_tags, LAYOUT_MIX
 from pytagcloud.lang.counter import get_tag_counts
 from pytagcloud.colors import COLOR_SCHEMES
+
 import webbrowser
 
 from tqdm import tqdm
@@ -34,20 +37,97 @@ set_option('display.max_columns', None)
 # ======================================================================================================================
 
 
-def wordcloud(self):
-    words = nltk.word_tokenize(self._contents)
-    doc = " ".join(d for d in words[:70])
+def interactive_wordcloud(all_texts):
+    '''
+    continuous_text = []
+    for text in all_texts:
+        continuous_text.append(" ".join(token_text for token_text in text))
 
-    tags = make_tags(get_tag_counts(doc), maxsize=100)
-    data = create_html_data(tags, (1600,1200), layout=LAYOUT_MIX, fontname='Philosopher', rectangular=True)
-    webbrowser.open('sid.jpeg')
+    text = " ".join(text for text in continuous_text)
+    '''
+    flat_text = []
+    for text in all_texts:
+        for word in text:
+            flat_text.append(word)
+    print(flat_text)
+
+    counts = Counter(flat_text).items()
+    print(counts)
+
+    sorted_wordscount = sorted(counts, key=lambda tup: tup[1])[:200]  # sort and select the top 200 words counts
+    print(sorted_wordscount)
+    # Running get_tag_counts result in error UnicodeDecodeError: 'charmap' codec can't decode byte 0xaa in position 90: character maps to <undefined>
+    # This is because in file stopwords.py, that is called by counter.py (contains code for get_tag_counts), the stopwords are not read in utf-8
+    tags = make_tags(sorted_wordscount, maxsize=100)
+    print('tags', tags)
+    data = create_html_data(tags, size=(1600, 800), layout=LAYOUT_MIX, fontname='Philosopher', rectangular=True)
+    print('data', data)
+
+    # ======================================================================================================================
+    # Write wordcloud on HTML file
+    # ======================================================================================================================
+
+    template_file = open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'out/template.html'), 'r')
+    html_template = Template(template_file.read())
+
+    context = {}
+
+    tags_template = '<li class="cnt" style="top: %(top)dpx; left: %(left)dpx; height: %(height)dpx;"><a class="tag %(cls)s" href="#%(tag)s" style="top: %(top)dpx;\
+            left: %(left)dpx; font-size: %(size)dpx; height: %(height)dpx; line-height:%(lh)dpx;">%(tag)s</a></li>'
+
+    context['tags'] = ''.join([tags_template % link for link in data['links']])
+    context['width'] = data['size'][0]
+    context['height'] = data['size'][1]
+    context['css'] = "".join("a.%(cname)s{color:%(normal)s;}\
+            a.%(cname)s:hover{color:%(hover)s;}" %
+                             {'cname': k,
+                              'normal': v[0],
+                              'hover': v[1]}
+                             for k, v in data['css'].items())
+
+    html_text = html_template.substitute(context)
+
+    test_output = os.path.join(os.getcwd(), 'out')
+    html_file = open(os.path.join(test_output, 'cloud.html'), 'w')
+    html_file.write(html_text)
+    html_file.close()
+    '''
+    # Write HTML String to file.html
+    with open("wordcloud.html", "w") as file:
+        file.write(data)
+    '''
+    #webbrowser.open('sid.jpeg')
+
+
+# generate wordclouds
+def wordcloud(all_texts, image_file_name):
+    print('all_texts', all_texts)
+    flat_text = []
+    for text in all_texts:
+        for word in text:
+            flat_text.append(word)
+    print(flat_text)
+
+    counts = Counter(flat_text)
+    print(counts)
+
+    wordcloud = WordCloud(width=1600, height=800, max_words=200, background_color="black").generate_from_frequencies(counts)
+
+    # Display the generated image
+    plt.figure(figsize=(20, 10), facecolor='k')
+    plt.tight_layout(pad=0)  # shrink the size of the border
+    plt.imshow(wordcloud, interpolation="bilinear")
+    plt.axis("off")
+    # plt.show()
+    plt.savefig(image_file_name + '.png', facecolor='k', bbox_inches='tight', dpi=300)
+
 
 
 # ======================================================================================================================
 # Read data
 # ======================================================================================================================
 
-tweets = read_csv('dataset/hate_tweets.csv', index_col=False)
+tweets = read_csv('dataset/hate_tweets.csv', encoding="utf8", index_col=False)
 
 
 # ======================================================================================================================
@@ -69,20 +149,17 @@ tweets.reset_index(drop=True, inplace=True)  # reset index needed for dataframe 
 
 
 # ======================================================================================================================
-# Set X and Y
+# Wordclouds for each label
 # ======================================================================================================================
 
-X = tweets['clean_text']
-Y = tweets['class']
+hate_speech_text = tweets[tweets['class'] == 0]
+wordcloud(hate_speech_text['clean_text'], 'hate_speech')
 
-print(Y.value_counts())
+offens_lang_text = tweets[tweets['class'] == 1]
+wordcloud(offens_lang_text['clean_text'], 'offens_lang')
 
-
-# ======================================================================================================================
-# Train/Test set split
-# ======================================================================================================================
-
-x_train, x_test, y_train, y_test = model_selection.train_test_split(X, Y, test_size=0.1, stratify=Y, random_state=0)
+neither_text = tweets[tweets['class'] == 2]
+wordcloud(neither_text['clean_text'], 'neither')
 
 
 # ======================================================================================================================
@@ -103,23 +180,18 @@ model = pipeline.Pipeline([
     #('tfidf', TfidfVectorizer(lowercase=False, max_df=max_df, max_features=max_features, analyzer='word', tokenizer=lambda x: x, preprocessor=lambda x: x)),
     #('tfidf', TfidfVectorizer(preprocessor=' '.join, stop_words='english')), # use default tokenizer on sentence created by joining tokens using preprocessor
 
-    ('svd', TruncatedSVD(n_components=1000)),
+    ('svd', TruncatedSVD(n_components=300)),
 
 #    ('scaler', MinMaxScaler()),
 
-    #('svm', svm.SVC(kernel='rbf', C=1000, gamma=0.1, decision_function_shape='ovr'))
-    #('svm', svm.SVC(kernel='rbf', C=100, gamma=0.1, decision_function_shape='ovr'))
 #    ('svm', svm.SVC(kernel='poly', C=100, gamma=0.1, class_weight='balanced', decision_function_shape='ovr', probability=True))
-
-    #('svm', RandomForestClassifier(n_estimators=100, criterion='gini', max_features='log2', max_depth=None))
-    #('svm', LogisticRegression(solver="liblinear", C=300, max_iter=300))
 
     # multi:softmax: multiclass classification using the softmax objective
     ('xgb', XGBClassifier(learning_rate=0.01, n_estimators=1000, max_depth=4, min_child_weight=6, gamma=0,
                           subsample=0.8, colsample_bytree=0.8, reg_alpha=0.005, objective='multi:softmax',
                           nthread=4, random_state=27))
 
-]) # F1 Score: 0.6741140000713671
+])  # F1 Score: 0.6968215126026323
 
 # {'svm__C': 100, 'svm__gamma': 0.1, 'svm__kernel': 'rbf'}           F1 Score: 0.6479
 # {'svm__C': 100, 'svm__gamma': 0.1, 'svm__kernel': 'poly'}          F1 Score: 0.6646
@@ -127,11 +199,50 @@ model = pipeline.Pipeline([
 
 
 # ======================================================================================================================
+# Set X and Y
+# ======================================================================================================================
+
+X = tweets['clean_text']
+Y = tweets['class']
+
+# replace labels numbers with their corresponding names
+print(Y)
+Y.replace({0: 'hate speech', 1: 'offensive language', 2: 'neither'}, inplace=True)
+print(Y)
+print(Y.value_counts())
+
+# create interactive wordcloud
+# interactive_wordcloud(X)
+
+
+# ======================================================================================================================
+# Train/Test set split
+# ======================================================================================================================
+
+x_train, x_test, y_train, y_test = model_selection.train_test_split(X, Y, test_size=0.1, stratify=Y, random_state=0)
+
+
+# ======================================================================================================================
 # Tune weight for imbalanced classification in XGB Classifier
 # ======================================================================================================================
 
-class_weights = list(class_weight.compute_class_weight('balanced', np.unique(y_train), y_train))
+# class_weights = list(class_weight.compute_class_weight('balanced', np.unique(y_train), y_train))
+# 0     1430
+# 1    19189
+# 2     4160
 
+# count of the labels
+class_count = Counter(y_train)
+
+# the max label count
+all_values = class_count.values()
+max_count = max(all_values)
+
+# undervalue class 2 ('neither', 3/4 of the majority class)
+class_weights = {'hate speech': max_count / class_count['hate speech'],
+                 'offensive language': max_count / class_count['offensive language'],
+                 'neither': 3/4 * (max_count / class_count['neither'])}
+# [5.775964775964776, 0.4304381393553368, 1.9854878917378918]
 print(class_weights)
 print(y_train.shape[0])
 
@@ -143,12 +254,10 @@ for i, val in enumerate(y_train):
 print(w_array)
 print(y_train)
 
-model.fit(x_train, y_train, xgb__sample_weight=w_array)
-
 # ======================================================================================================================
 
 # Train model
-#model.fit(x_train, y_train)
+model.fit(x_train, y_train, xgb__sample_weight=w_array)
 
 # Make prediction on test set
 y_predicted = model.predict(x_test)
@@ -162,10 +271,7 @@ f1 = metrics.f1_score(y_test, y_predicted, average='macro')
 
 print('\nResults:')
 print('Accuracy: {}'.format(acc))
-
-from sklearn.metrics import balanced_accuracy_score
-print("balanced accuracy: %.2f" % balanced_accuracy_score(y_test, y_predicted))
-
+print("Balanced Accuracy: %.2f" % balanced_accuracy_score(y_test, y_predicted))
 print('Precision: {}'.format(prec))
 print('Recall: {}'.format(rec))
 print('F1 Score: {}'.format(f1))
@@ -175,8 +281,33 @@ print('F1 Score: {}'.format(f1))
 # AFTER FITTING THE MODEL, SAVE IT WITH PICKLE
 # ======================================================================================================================
 
+print(Y.value_counts())
+
+# count of the labels
+class_count = Counter(Y)
+
+# the max label count
+all_values = class_count.values()
+max_count = max(all_values)
+
+# undervalue class 2 ('neither', 3/4 of the majority class)
+class_weights = {'hate speech': max_count / class_count['hate speech'],
+                 'offensive language': max_count / class_count['offensive language'],
+                 'neither': 3/4 * (max_count / class_count['neither'])}
+# [5.775964775964776, 0.4304381393553368, 1.9854878917378918]
+print(class_weights)
+print(Y.shape[0])
+
+# assign the corresponding class weight for each individual data instance
+w_array = np.ones(Y.shape[0], dtype='float')
+for i, val in enumerate(Y):
+    w_array[i] = class_weights[val]
+
+print(w_array)
+print(Y)
+
 # retrain model on whole dataset and save it
-model.fit(X, Y)
+model.fit(X, Y, xgb__sample_weight=w_array)
 
 # Saving model to disk
 pickle.dump(model, open('model.pkl', 'wb'))

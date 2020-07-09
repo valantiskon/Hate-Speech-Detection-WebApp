@@ -71,7 +71,7 @@ class preprocessing:
         return contractions_re.sub(replace, text)
 
 
-    whitelist = ["n't", "not", 'nor', "nt"]  # Keep the words "n't" and "not", 'nor' and "nt"
+    whitelist = ["not", 'nor']  # Keep the words "n't" and "not", 'nor' and "nt"
     stopwords_verbs = ['say', 'get', 'go', 'know', 'may', 'need', 'make', 'see', 'want', 'come', 'take', 'use',
                        'would', 'can']
     stopwords_other = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'may',
@@ -279,14 +279,14 @@ class preprocessing:
         text = re.sub('\S*@\S*\s?', '', text)
 
         # remove rt and via in case of tweet data
-        text = re.sub(r"rt|RT", "", text)
-        text = re.sub(r"via|VIA", "", text)
-        text = re.sub(r"it|IT", "", text)
-        text = re.sub(r"btu|BTu", "", text)
-        text = re.sub(r"bt |BT ", "", text)
+        text = re.sub(r"\b( rt|RT)\b", "", text)
+        text = re.sub(r"\b( via|VIA)\b", "", text)
+        text = re.sub(r"\b( it|IT)\b", "", text)
+        text = re.sub(r"\b( btu|BTu)\b", "", text)
+        text = re.sub(r"\b( bt |BT )\b", "", text)
 
         # remove repost in case of instagram data
-        text = re.sub(r"repost|REPOST", "", text)
+        text = re.sub(r"\b( repost|REPOST)\b", "", text)
 
         # format contractions without apostrophe in order to use for contraction replacement
         text = re.sub(r"\b( s| 's)\b", " is ", text)

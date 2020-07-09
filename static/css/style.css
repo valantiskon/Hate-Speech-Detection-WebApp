@@ -11,12 +11,12 @@
 
 * { -webkit-box-sizing:border-box; -moz-box-sizing:border-box; -ms-box-sizing:border-box; -o-box-sizing:border-box; box-sizing:border-box; }
 
-html { width: 100%; height: auto; overflow-y: auto; }
+html { width: 100%; height: auto; overflow-x: hidden; overflow-y: auto; }
 
 body {
 	width: 100%;
 	font-family: 'Open Sans', sans-serif;
-	color: #fff;
+	color: #000;
 	font-size: 18px;
 	text-align:center;
 	letter-spacing:1.2px;
@@ -31,26 +31,42 @@ body {
     background-attachment: fixed;
 }
 
-.main_area {
-	position: absolute;
-	top: 30%;
-	left: 50%;
-	margin: -150px 0 0 -150px;
-	width:400px;
+.intro_area {
+    display: inline-block;
+	top: 10%;
+    width:80%;
 }
 
-.main_area h1 { color: #fff; text-shadow: 0 0 10px rgba(0,0,0,0.3); letter-spacing:1px; text-align:center; }
+h1, h3 { color: #2eb5ea; text-shadow: 0 0 10px rgba(0,0,0,0.3); letter-spacing:1px; text-align:center; }
+
+/* used for the colored text in explanation (explain_top_2_preds) (it uses plain p) */
+span { color: #000; }
+
+/* used for all p of the web page (except text in explanation) */
+p { color: #d2d7e6; text-shadow: 0 0 10px rgba(0,0,0,0.3); letter-spacing:1px; text-align:center; }
+
+.main_area {
+    display: inline-block;
+    margin-top: 3%;
+	width: 400px;
+}
 
 .prediction_text { margin-bottom: 50px; }
 
+
+/* Images - Wordcloud formatting */
+
 div.polaroid {
-	width: 100%;
+    display: inline-block;
+	text-align: center;
 	background-color: white;
 	box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+	margin-top: 20px;
 	margin-bottom: 50px;
+	width: 50%;
 }
   
-img.test {
+img.word_img {
 	display: block;
 	margin-left: auto;
 	margin-right: auto;
@@ -58,8 +74,10 @@ img.test {
 }
 
 div.container {
-    text-align: center;
-	padding: 10px 20px;
+    width: 100%;
+    color: #000;
+	padding: 5px 20px;
+	display: inline-block;
 }
 
 

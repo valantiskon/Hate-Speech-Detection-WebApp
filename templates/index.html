@@ -10,17 +10,53 @@
     <link href='https://fonts.googleapis.com/css?family=Open+Sans+Condensed:300' rel='stylesheet' type='text/css'>
     <meta name="description" content="This page is about showcasing work created for a MSc project">
     <link rel="icon" type="image/ico" href="static/favicon1.ico"/>     <!-- Addition of favicon -->
+
+    <!-- Tooltips -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    
   </head>
 
   <body>
+    <div class="intro_area">
+      <h1>Hate Speech / Offensive Language Detection</h1>
+
+      <p>
+        Recent years highlight the broad use of social media, blogging, and other social communication services. This
+        services expose their users to content created by other individuals. More often than not, that content might
+        contain offensive or abusive phrases which might attack or offend certain user groups without providing
+        constructive information. Additionally, another coherent category to offensive language is that of hate speech.
+        Hate speech is defined as "abusive speech targeting specific group characteristics, such as ethnicity, religion,
+        or gender". This kind of language usage, if not contained, might hinder the appeal of such services to the
+        average user, especially in social networks and product feedback sites.
+      </p>
+
+      <p>
+        Consequently, filtering this kind of content becomes imperative in order to improve the user experience and
+        maintain a prestigious name of the business involved. Simultaneously, the size of the data produced by such
+        services is immense to be cleaned by a human resources. An automatic software with the ability to identify such
+        abusive language would be a valuable tool.
+      </p>
+
+      <p>
+        This classifier is trained to discriminate the category of a text in between three classes which are 'Hate
+        Speech', 'Offensive Language' and 'Neither'.
+      </p>
+    </div>
+
+
     <div class="main_area">
-      <h1>Hate Speech Detection</h1>
-      
+
+      <!-- ADD PLOT TITLE + TOOLTIP TO EXPLAIN IT -->
+      <div class="list-inline">
+        <h3 class="w3-text-teal"> Prediction Model <i class="fa fa-info-circle infopop-icon" data-toggle="tooltip" data-placement="right" title="The model categorizes text into 3 classes, which are 'Hate Speech', 'Offensive Language' and 'Neither'. Classifier (XGBoost) decisions are explained through the LIME algorithm."></i> </h3>
+      </div>
+
       <!-- Main Input For Receiving Query to our ML -->
       <form action="{{ url_for('predict')}}" method="post">
-        <input type="text" name="hate_speech_text_field" placeholder="Text" required="required" />
+        <input type="text" name="hate_speech_text_field" placeholder="Text in Question" required="required" />
 
         <button type="submit" class="btn btn-primary btn-block btn-large">Predict</button>
       </form>
@@ -28,41 +64,58 @@
       <br>
       <br>
 
-      <h3>{{ hate_speech_text }}</h3>
-      <div class="prediction_text">
-        {{ pre_predict_text }} <strong> {{ prediction_text }} </strong>
-      </div>
-
-
-
-
-      <div class="prediction_text">
-        {{ tesst }}
-      </div>
-      {{ test2 }}
-      <!-- {{ test2|safe }} -->
-      {{ test134 }}
-
-
-
-      <div class="polaroid">
-        <img class="test" src={{url_for('static', filename='apps.png')}} alt="wordcloud">
-        <div class="container">
-          <p><font color="black">wordcloud</font></p>
+      {% if hate_speech_text %}
+        <!-- ADD PLOT TITLE + TOOLTIP TO EXPLAIN IT -->
+        <div class="list-inline">
+          <h3 class="w3-text-teal"> {{ hate_speech_text }} <i class="fa fa-info-circle infopop-icon" data-toggle="tooltip" data-placement="right" title="A text might be part of more than one category, as some words may convey Hate Speech and Offensive Language at the same time."></i> </h3>
         </div>
+      {% endif %}
+
+      <div class="prediction_text">
+        <p> {{ pre_predict_text }} </p>
+        <p> {{ predict_text }} </p>
+        <p><strong> {{ prediction_text }} </strong></p>
       </div>
-      
-      <div class="polaroid">
-        <img class="test" src={{url_for('static', filename='apps.png')}} alt="wordcloud">
-        <div class="container">
-          <p><font color="black">wordcloud</font></p>
+
+      <!-- Another way to import HTML code {{ explain_top_2_preds|safe }} -->
+      {% if expla_text %}
+        <!-- ADD PLOT TITLE + TOOLTIP TO EXPLAIN IT -->
+        <div class="list-inline">
+          <h3 class="w3-text-teal"> {{ expla_text }} <i class="fa fa-info-circle infopop-icon" data-toggle="tooltip" data-placement="right" title="The original text is cleaned, corrected and filtered from stop words, thus less words appear in the explanation. The highlighted words represent their importance in the prediction of a specific label. Explanation is generated using the LIME algorithm - used for Black-Box classifier interpretation."></i> </h3>
         </div>
-      </div>
-      
+      {{ explain_top_2_preds }}
+      {% endif %}
+
+
     </div>
 
-    
 
+    {% if wordclouds %}
+      <!-- ADD PLOT TITLE + TOOLTIP TO EXPLAIN IT -->
+      <div class="list-inline">
+        <h3 class="w3-text-teal"> Train dataset - Word Cloud per class <i class="fa fa-info-circle infopop-icon" data-toggle="tooltip" data-placement="right" title="Before generating the wordclouds, train text is cleaned, corrected and filtered from stop words. Wordclouds are plotted for each of the 3 classes, which are 'Hate Speech', 'Offensive Language' and 'Neither'."></i> </h3>
+      </div>
+    {% endif %}
+
+    {% for wordcloud in wordclouds %}
+      <div class="polaroid">
+        <img class="word_img" src="{{ wordcloud[1] }}" alt="wordcloud">
+        <div class="container">
+          {{ wordcloud[0] }}
+        </div>
+      </div>
+    {% endfor %}
+
+
+
+    <script src='https://kit.fontawesome.com/a076d05399.js'></script>
+
+    <script type="text/javascript">
+      // Add tooltips
+      $(document).ready(function(){
+        $('[data-toggle="tooltip"]').tooltip();
+      });
+    </script>
 
   </body>
 </html>
