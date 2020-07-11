@@ -12,13 +12,14 @@ app = Flask(__name__)
 app.debug = False
 app.secret_key = "your_key"
 
+
 # Used in pickle pipeline on TF-IDF
 def dummy(token):
     return token
 
 
 # Load pre-trained ML model
-model = pickle.load(open('model.pkl', 'rb'))
+model = pickle.load(open('model.pkl', 'rb'))  # NEEDS TO BE CREATED WITH BOTH FILES IN FOLDER pickle_model_for_webapp
 
 # Create object of class preprocessing to clean data
 reading = clean_data.preprocessing.preprocessing(convert_lower=True, use_spell_corrector=True, only_verbs_nouns=False)
@@ -135,6 +136,8 @@ def predict():
                                    explain_top_2_preds=explain_html,
                                    wordclouds=wordcloud_descr)
 
+        # ==============================================================================================================
+
         return render_template('index.html', hate_speech_text="Hate Speech / Offensive Language Prediction:",
                                pre_predict_text="'"+form_text[0]+"'", predict_text="is mostly", prediction_text=output,
                                expla_text='Explanation', explain_top_2_preds=top_2_preds, wordclouds=wordcloud_descr)
@@ -144,4 +147,3 @@ def predict():
 
 if __name__ == "__main__":
     app.run(debug=True)
-    # app.run("localhost", "9999", debug=True)
