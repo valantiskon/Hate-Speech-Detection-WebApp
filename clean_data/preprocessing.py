@@ -13,7 +13,10 @@ from nltk.stem.wordnet import WordNetLemmatizer  # used for lemmatizer
 from symspellpy.editdistance import DistanceAlgorithm
 from symspellpy.symspellpy import SymSpell, Verbosity
 
+nltk.download('punkt')
 nltk.download('wordnet')
+nltk.download('stopwords')
+nltk.download('averaged_perceptron_tagger')
 
 
 class preprocessing:

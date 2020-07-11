@@ -39,11 +39,9 @@ set_option('display.max_columns', None)
 
 def interactive_wordcloud(all_texts):
     '''
-    continuous_text = []
-    for text in all_texts:
-        continuous_text.append(" ".join(token_text for token_text in text))
 
-    text = " ".join(text for text in continuous_text)
+    :param all_texts:
+    :return:
     '''
     flat_text = []
     for text in all_texts:
@@ -114,7 +112,7 @@ def wordcloud(all_texts, image_file_name):
     wordcloud = WordCloud(width=1600, height=800, max_words=200, background_color="black").generate_from_frequencies(counts)
 
     # Display the generated image
-    plt.figure(figsize=(20, 10), facecolor='k')
+    plt.figure(figsize=(16, 8), facecolor='k')
     plt.tight_layout(pad=0)  # shrink the size of the border
     plt.imshow(wordcloud, interpolation="bilinear")
     plt.axis("off")
@@ -280,7 +278,7 @@ print('F1 Score: {}'.format(f1))
 # ======================================================================================================================
 # AFTER FITTING THE MODEL, SAVE IT WITH PICKLE
 # ======================================================================================================================
-
+'''
 print(Y.value_counts())
 
 # count of the labels
@@ -311,6 +309,7 @@ model.fit(X, Y, xgb__sample_weight=w_array)
 
 # Saving model to disk
 pickle.dump(model, open('model.pkl', 'wb'))
+'''
 
 '''
 # Load the model to make predictions
