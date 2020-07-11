@@ -6,14 +6,14 @@ The predictive model is then deployed in a Web App, allowing users to enter any 
 
 The app features an interpretation schema that aims to explain the given prediction applying the LIME method, that utilizes white box models in order to interpret decisions of black box models.
 
-##### Online version:
+### Online version:
 The app is hosted by HEROKU and can be found at: https://hate-offens-lang-detector.herokuapp.com/
 
-##### To DO:
+### To DO:
 - [x] Train one-vs-rest model (1 model for each label -> select the most probable prediction as the final one)
 - [x] Apply above schema utilizing Logistic Regression with L2 regularization (as proposed by the authors of cited paper)
  
- ##### References:
+ ### References:
  Dataset originates from the paper cited below and can be found at: https://github.com/t-davidson/hate-speech-and-offensive-language. 
  
  Davidson, T., Warmsley, D., Macy, M. and Weber, I., 2017. Automated Hate Speech Detection and the Problem of Offensive Language. ArXiv. https://arxiv.org/pdf/1703.04009.pdf
