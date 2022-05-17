@@ -7,7 +7,7 @@ The predictive model is then deployed in a Web App, allowing users to enter any 
 The app features an interpretation schema that aims to explain the given prediction applying the LIME method, that utilizes white box models in order to interpret decisions of black box models.
 
 ### Online version:
-The app is hosted by HEROKU and can be found at: https://hate-offens-lang-detector.herokuapp.com/
+The app is hosted by HEROKU and can be found at: https://hate-offens-lang-detector.herokuapp.com/ (up to 30sec. loading time)
 
 ### To DO:
 - [x] Train one-vs-rest model (1 model for each label -> select the most probable prediction as the final one)
